@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Dojo MultiSelect Dijit with ArcGIS JS API 3x v1</title>
+    
+    <link rel="stylesheet" href="https://js.arcgis.com/3.30/esri/css/esri.css" />
+    <script src="https://js.arcgis.com/3.30/"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #bannerDiv {
+        width: 100%;
+        height: 190px;
+        background-color: #FFCCCC;
+        text-align: center;
+        padding: 5px;
+      }
+      #viewDiv {
+        position: absolute;
+        width: 100%;
+        height: calc(100% - 180px);
+      }
+    </style>
+
+    <script>
+      require([
+        "esri/map",
+        "esri/layers/FeatureLayer",
+        "dijit/form/MultiSelect",
+        "esri/arcgis/utils",
+        "dojo/dom",
+        "dojo/on"  
+      ], function(Map, FeatureLayer, MultiSelect, arcgisUtils, dom, on) {
+        let borrosLyr = null;
+        arcgisUtils.createMap("1d1229a2045940e59730a18bad82c0aa", "viewDiv").then(function (response) {
+          var map = response.map;
+          var webMapLayers = arcgisUtils.getLayerList(response);
+          webMapLayers.some(function(lyr){
+            return lyr.title === 'NYC_Community_Districts' ? ((borrosLyr = lyr.layer), true): false
+          });
+        });
+        
+        function applyDefinition() {
+          const selected = document.querySelectorAll('#boros option:checked');
+          const values = Array.from(selected).map(el => el.value);
+
+          var strDefinitionExpression = "boroname IN (";
+
+          // build the where clause definition expression string based on user input
+          var vals = [];
+          for (i=0; i<values.length; i++) {
+            vals.push("'" + values[i] + "'");
+          }
+          var valsStr = vals.join();
+          strDefinitionExpression += valsStr + ")";
+          console.info(strDefinitionExpression);
+          borrosLyr.setDefinitionExpression(strDefinitionExpression);
+        } // end of function applyQueryDef()
+
+        function clearDefinition() {
+          var elemMultiSelect = dom.byId("boros");
+
+          // deselect all elements in the multiselect box UI
+          for (i=0; i<elemMultiSelect.length; i++) {
+            elemMultiSelect[i].selected = false;
+          }
+          
+          // clear out the definition expression so that all features draw
+          borrosLyr.setDefinitionExpression("");
+
+        } // end of function clearQueryDef()
+
+      // BUTTON CLICK EVENTS
+        on(dom.byId("btnApplyDefinition"), "click", applyDefinition);
+        on(dom.byId("btnClearDefinition"), "click", clearDefinition);
+    
+      }); //end of require
+    </script>
+  </head>
+
+  <body>
+    
+    <div id="bannerDiv">
+      <h4>How to use a dojo/MultiSelect box to apply a layer definition expression</h4>
+      <h5>Use click, shift-click, ctrl-click to multi-select values, then click APPLY.</h5>
+
+      <select data-dojo-type="dijit/form/MultiSelect" 
+              multiple="true" style="height:80px;width:100px" 
+              id="boros" name="boros" size="4">
+        <option value="Manhattan">Manhattan</option>
+        <option value="Bronx">Bronx</option>
+        <option value="Brooklyn">Brooklyn</option>
+        <option value="Queens">Queens</option>        
+        <option value="Staten Island">Staten Island</option>
+      </select>      
+      <button class="btn" id="btnApplyDefinition">Apply</button>
+      <button class="btn" id="btnClearDefinition">Clear</button>
+
+    </div>
+  
+    <div id="viewDiv"></div>
+      
+  </body>
+
+</html>
