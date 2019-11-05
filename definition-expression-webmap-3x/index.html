@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <title>Dojo MultiSelect Dijit with ArcGIS JS API 3x v1</title>
+    <title>setDefinitionExpression() in a web map, with Dojo MultiSelect</title>
     
     <link rel="stylesheet" href="https://js.arcgis.com/3.30/esri/css/esri.css" />
     <script src="https://js.arcgis.com/3.30/"></script>
@@ -50,9 +50,7 @@
         function applyDefinition() {
           const selected = document.querySelectorAll('#boros option:checked');
           const values = Array.from(selected).map(el => el.value);
-
           var strDefinitionExpression = "boroname IN (";
-
           // build the where clause definition expression string based on user input
           var vals = [];
           for (i=0; i<values.length; i++) {
@@ -63,10 +61,8 @@
           console.info(strDefinitionExpression);
           borrosLyr.setDefinitionExpression(strDefinitionExpression);
         } // end of function applyQueryDef()
-
         function clearDefinition() {
           var elemMultiSelect = dom.byId("boros");
-
           // deselect all elements in the multiselect box UI
           for (i=0; i<elemMultiSelect.length; i++) {
             elemMultiSelect[i].selected = false;
@@ -74,9 +70,7 @@
           
           // clear out the definition expression so that all features draw
           borrosLyr.setDefinitionExpression("");
-
         } // end of function clearQueryDef()
-
       // BUTTON CLICK EVENTS
         on(dom.byId("btnApplyDefinition"), "click", applyDefinition);
         on(dom.byId("btnClearDefinition"), "click", clearDefinition);
